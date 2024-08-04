@@ -43,10 +43,10 @@ if (process.env.NODE_ENV === "development") {
 // File uploading
 app.use(fileUpload());
 
-// Sanitize data
-app.use(mongoSanitaze);
+// // Sanitize data
+app.use(mongoSanitaze());
 
-// Set Security headers
+// // Set Security headers
 app.use(helmet());
 
 // Prevent XSS attacs

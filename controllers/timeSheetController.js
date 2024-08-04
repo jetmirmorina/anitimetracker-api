@@ -364,9 +364,7 @@ exports.getActivitieByDate = asyncHandler(async (req, res, next) => {
       date: req.params.date,
     })
       .select("onBreakTime clockinTime")
-      // .populate({
-      //   path: "activity",
-      // })
+
       .populate({ path: "user", select: "name photo" });
 
     res.status(200).json({ success: true, data: timeSheet });
