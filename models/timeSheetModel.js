@@ -16,10 +16,15 @@ const TimeSheetSchema = new mongoose.Schema({
       ref: "TimeSheetActivity",
     },
   ],
+  endLocation: {
+    latitude: Number,
+    longitude: Number,
+  },
   clockinTime: String,
   onBreakTime: String,
   fullDate: Date,
   date: String,
+  staus: String,
   note: { type: String, maxlength: [250, "Note should be max 250 characters"] },
 });
 

@@ -66,12 +66,14 @@ exports.clockin = asyncHandler(async (req, res, next) => {
     activity: [activity._id],
     company: companyId,
     fullDate: fullDate,
+    staus: "clockin",
+    endLocation: { latitude, longitude },
   });
 
   await timesheet.save();
   activity = await TimesheetActivity.findByIdAndUpdate(
     activity.id,
-    { timesheet: timesheet.id },
+    { timesheet: timesheet.id, status: "clockin" },
     { new: true, runValidators: true }
   );
 
@@ -128,7 +130,11 @@ exports.clockout = asyncHandler(async (req, res, next) => {
   // Update the TimeSheet document
   const updatedTimeSheet = await TimeSheet.findByIdAndUpdate(
     timesheetId,
-    { clockinTime: totalTime },
+    {
+      clockinTime: totalTime,
+      status: "clockout",
+      endLocation: { latitude, longitude },
+    },
     { new: true } // This option returns the updated document
   );
 
@@ -173,6 +179,12 @@ exports.startBreak = asyncHandler(async (req, res, next) => {
 
   await activity.save();
   await timeSheet.save();
+
+  timeSheet = await TimeSheet.findByIdAndUpdate(
+    timesheetId,
+    { status: "onBreak", endLocation: { latitude, longitude } },
+    { new: true } // This option returns the updated document
+  );
 
   res.status(201).json({ success: true, data: timeSheet });
 });
@@ -227,7 +239,11 @@ exports.endBreak = asyncHandler(async (req, res, next) => {
   // Update the TimeSheet document
   const updatedTimeSheet = await TimeSheet.findByIdAndUpdate(
     timesheetId,
-    { onBreakTime: totalTime },
+    {
+      onBreakTime: totalTime,
+      status: "clockin",
+      endLocation: { latitude, longitude },
+    },
     { new: true } // This option returns the updated document
   );
 

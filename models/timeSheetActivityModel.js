@@ -24,4 +24,27 @@ const TimeSheetActivitySchema = new mongoose.mongoose.Schema({
   },
 });
 
+//Static method to get avg of course tutions
+TimeSheetActivitySchema.statics.saveStatus = async function (
+  timeSheetId,
+  type
+) {
+  try {
+    const ti = await this.model("TimeSheet").findByIdAndUpdate(timeSheetId, {
+      staus: type,
+    });
+    console.log(`dffff: ${timeSheetId}`.bgRed);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+// Call getAvarageCost after save
+TimeSheetActivitySchema.post("findByIdAndUpdate", function () {
+  console.log(`this.timesheet: ${this.timesheet}`.bgRed);
+  console.log(`this.type: ${this.type}`.bgRed);
+
+  //this.constructor.saveStatus(this.timesheet, this.type);
+});
+
 module.exports = mongoose.model("TimeSheetActivity", TimeSheetActivitySchema);

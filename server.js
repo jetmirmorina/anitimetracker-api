@@ -7,6 +7,7 @@ const cookieParser = require("cookie-parser");
 const xss = require("xss-clean");
 const mongoSanitaze = require("express-mongo-sanitize");
 const helmet = require("helmet");
+const cors = require("cors");
 const fileUpload = require("express-fileupload");
 const errorHandler = require("./middleware/error");
 const connectDb = require("./config/db");
@@ -51,6 +52,9 @@ app.use(helmet());
 
 // Prevent XSS attacs
 app.use(xss());
+
+// Enable CORS
+app.use(cors());
 
 // Set static folder
 app.use(express.static(path.join(__dirname, "public")));
