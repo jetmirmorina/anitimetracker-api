@@ -26,13 +26,17 @@ const TimeSheetActivitySchema = new mongoose.mongoose.Schema({
 
 TimeSheetActivitySchema.statics.saveUserStatus = async function (
   userId,
-  status
+  status,
+  location,
+  address
 ) {
   try {
     await this.model("User").findByIdAndUpdate(
       { _id: userId },
       {
         activityStatus: status,
+        activityLocation: location,
+        activityAdress: address,
       }
     );
   } catch (err) {
@@ -41,7 +45,39 @@ TimeSheetActivitySchema.statics.saveUserStatus = async function (
 };
 
 TimeSheetActivitySchema.post("save", function () {
-  this.constructor.saveUserStatus(this.user.toString(), this.type);
+  let activity = "";
+  let address = this.address;
+  let location = this.location;
+
+  switch (this.type) {
+    case "clockin":
+      console.log("clockin");
+      activity = "clockin";
+
+      break;
+    case "startBreak":
+      console.log("onBreak");
+      activity = "onBreak";
+      break;
+    case "endBreak":
+      console.log("clockin");
+      activity = "clockin";
+    case "clockout":
+      console.log(`clockout`.bold.bgGreen);
+      activity = "offline";
+      address = "";
+      location = {};
+      break;
+    default:
+      console.log("Unknown action");
+      break;
+  }
+  this.constructor.saveUserStatus(
+    this.user.toString(),
+    activity,
+    location,
+    address
+  );
 });
 
 module.exports = mongoose.model("TimeSheetActivity", TimeSheetActivitySchema);

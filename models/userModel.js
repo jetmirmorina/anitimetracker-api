@@ -56,7 +56,12 @@ const UserSchema = new mongoose.Schema(
         ref: "Company",
       },
     ],
-    activityStatus: { type: String, default: "" },
+    activityStatus: { type: String, default: "offline" },
+    activityLocation: {
+      latitude: Number,
+      longitude: Number,
+    },
+    activityAdress: { type: String, default: "" },
   },
   {
     toJSON: { virtuals: true },
