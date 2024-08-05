@@ -56,6 +56,7 @@ const UserSchema = new mongoose.Schema(
         ref: "Company",
       },
     ],
+    activityStatus: { type: String, default: "" },
   },
   {
     toJSON: { virtuals: true },
