@@ -62,6 +62,8 @@ TimeSheetActivitySchema.post("save", function () {
     case "endBreak":
       console.log("clockin");
       activity = "clockin";
+      break;
+
     case "clockout":
       console.log(`clockout`.bold.bgGreen);
       activity = "offline";
