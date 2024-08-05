@@ -379,7 +379,7 @@ exports.getActivitieByDate = asyncHandler(async (req, res, next) => {
       company: companyId,
       date: req.params.date,
     })
-      .select("onBreakTime clockinTime")
+      .select("onBreakTime clockinTime endLocation fullDate date staus")
 
       .populate({ path: "user", select: "name photo" });
 
