@@ -388,7 +388,7 @@ exports.getActivitieByDate = asyncHandler(async (req, res, next) => {
 });
 
 // @desc    Get activities per user
-// @route   GET /api/v1/company/:companyId/activity/date/:date/user
+// @route   GET /api/v1/company/:companyId/activity/date/:date/user/:userid
 // @access  Private
 exports.getUserTmesheets = asyncHandler(async (req, res, next) => {
   const companyId = req.params.companyId;
@@ -398,11 +398,13 @@ exports.getUserTmesheets = asyncHandler(async (req, res, next) => {
       new ErrorResponse(`Company with id: ${companyId} does not exist`, 404)
     );
   }
-
   const timeShees = await TimeSheet.find({
-    user: req.user.id,
+    user: req.params.userid,
     date: req.params.date,
-  }).populate({ path: "activity" });
+  }).populate({
+    path: "activity",
+    select: "type address fullDate date endBreak",
+  });
 
   res.status(200).json({ success: true, data: timeShees });
 });

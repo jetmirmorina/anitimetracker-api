@@ -28,6 +28,6 @@ router.route("/clockout/:timesheetId").post(protect, clockout);
 router.route("/:id/note").post(protect, addNote);
 router.route("/startbreak/:timesheetId").post(protect, startBreak);
 router.route("/endbreak/:timesheetId").post(protect, endBreak);
-router.route("/date/:date/user").get(protect, getUserTmesheets);
+router.route("/date/:date/user/:userid").get(protect, getUserTmesheets);
 
 module.exports = router;
