@@ -15,6 +15,9 @@ const connectDb = require("./config/db");
 // Load env vars
 dotenv.config({ path: "./config/config.env" });
 
+console.log("AWS_ACCESS_KEY_ID:", process.env.AWS_ACCESS_KEY_ID);
+console.log("S3_BUCKET_NAME:", process.env.S3_BUCKET_NAME);
+
 // connect to DB
 connectDb();
 

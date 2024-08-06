@@ -2,6 +2,7 @@ const ErrorResponse = require("../utils/errorResponse");
 const asyncHandler = require("../middleware/async");
 const User = require("../models/userModel");
 const path = require("path");
+const uploadFileToS3 = require("../utils/uploadFileToS3");
 
 // @desc    Get all Users
 // @route   GET /api/v1/users
@@ -137,7 +138,7 @@ exports.updateUserFullName = asyncHandler(async (req, res, next) => {
 // @route   PUT /api/v1/user/:id/photo
 // @access  Private
 exports.userPhotoUpload = asyncHandler(async (req, res, next) => {
-  const user = await User.findById(req.params.id);
+  let user = await User.findById(req.params.id);
 
   if (!user) {
     return next(
@@ -176,22 +177,34 @@ exports.userPhotoUpload = asyncHandler(async (req, res, next) => {
   // Create custom file name
   file.name = `photo_${user._id}${path.parse(file.name).ext}`;
   console.log(`file.name: ${file.name}`);
+  console.log("S3_BUCKET_NAME:", process.env.S3_BUCKET_NAME);
 
-  file.mv(`${process.env.FILE_UPLOAD_PATH}/${file.name}`, async (error) => {
-    if (error) {
-      console.log(error);
-      return next(new ErrorResponse(`Problem with file upload`, 500));
-    }
+  const uploadResult = await uploadFileToS3(file);
+  user = await User.findByIdAndUpdate(
+    req.params.id,
+    { photo: uploadResult.Location },
+    { new: true, runValidators: true }
+  );
 
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      { photo: file.name },
-      { new: true, runValidators: true }
-    );
-
-    res.status(200).json({
-      success: true,
-      data: file.name,
-    });
+  res.status(200).json({
+    success: true,
+    data: uploadResult.Location,
   });
+  // file.mv(`${process.env.FILE_UPLOAD_PATH}/${file.name}`, async (error) => {
+  //   if (error) {
+  //     console.log(error);
+  //     return next(new ErrorResponse(`Problem with file upload`, 500));
+  //   }
+
+  //   const user = await User.findByIdAndUpdate(
+  //     req.params.id,
+  //     { photo: file.name },
+  //     { new: true, runValidators: true }
+  //   );
+
+  // res.status(200).json({
+  //   success: true,
+  //   data: file.name,
+  // });
+  //});
 });
