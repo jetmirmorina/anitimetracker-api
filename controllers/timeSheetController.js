@@ -67,7 +67,7 @@ exports.clockin = asyncHandler(async (req, res, next) => {
     company: companyId,
     fullDate: fullDate,
     staus: "clockin",
-    endLocation: { latitude, longitude },
+    startLocation: { latitude, longitude },
   });
 
   await timesheet.save();
@@ -385,6 +385,26 @@ exports.getActivitieByDate = asyncHandler(async (req, res, next) => {
 
     res.status(200).json({ success: true, data: timeSheet });
   }
+});
+
+// @desc    Get activities per user
+// @route   GET /api/v1/company/:companyId/activity/date/:date/user
+// @access  Private
+exports.getUserTmesheets = asyncHandler(async (req, res, next) => {
+  const companyId = req.params.companyId;
+
+  if (!companyId) {
+    return next(
+      new ErrorResponse(`Company with id: ${companyId} does not exist`, 404)
+    );
+  }
+
+  const timeShees = await TimeSheet.find({
+    user: req.user.id,
+    date: req.params.date,
+  }).populate({ path: "activity" });
+
+  res.status(200).json({ success: true, data: timeShees });
 });
 
 // @desc    Get Timesheet By Id

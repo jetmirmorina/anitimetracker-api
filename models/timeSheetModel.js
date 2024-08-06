@@ -16,6 +16,10 @@ const TimeSheetSchema = new mongoose.Schema({
       ref: "TimeSheetActivity",
     },
   ],
+  startLocation: {
+    latitude: Number,
+    longitude: Number,
+  },
   endLocation: {
     latitude: Number,
     longitude: Number,
@@ -25,7 +29,11 @@ const TimeSheetSchema = new mongoose.Schema({
   fullDate: Date,
   date: String,
   staus: String,
-  note: { type: String, maxlength: [250, "Note should be max 250 characters"] },
+  note: {
+    type: String,
+    maxlength: [250, "Note should be max 250 characters"],
+    default: "",
+  },
 });
 
 module.exports = mongoose.model("TimeSheet", TimeSheetSchema);
