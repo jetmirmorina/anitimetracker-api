@@ -403,7 +403,7 @@ exports.getUserTmesheets = asyncHandler(async (req, res, next) => {
     date: req.params.date,
   }).populate({
     path: "activity",
-    select: "type address fullDate date endBreak",
+    select: "type address fullDate date endBreak location",
   });
 
   res.status(200).json({ success: true, data: timeShees });
