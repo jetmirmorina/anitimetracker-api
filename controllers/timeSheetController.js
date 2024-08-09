@@ -483,8 +483,6 @@ exports.getActivity = asyncHandler(async (req, res, next) => {
 // @route   GET /ap1/v1/company/:companyId/activity/users
 // @access  Privare
 exports.getUserActivities = asyncHandler(async (req, res, next) => {
-  console.log(`=============== ${req.params.companyId}`.bgRed);
-
   let company = await Company.findById(req.params.companyId);
   if (!company) {
     return next(
@@ -495,8 +493,12 @@ exports.getUserActivities = asyncHandler(async (req, res, next) => {
     );
   }
 
-  const user = await User.find({ companies: req.params.companyId }).select(
+  const users = await User.find({ companies: req.params.companyId }).select(
     "+activityStatus +activityAdress +activityLocation.latitude +activityLocation.longitude"
   );
-  res.status(200).json({ success: true, data: user });
+  const sortedUsers = users.sort((a, b) => {
+    const order = ["clockin", "onbreak", "offline"];
+    return order.indexOf(a.activityStatus) - order.indexOf(b.activityStatus);
+  });
+  res.status(200).json({ success: true, data: sortedUsers });
 });
