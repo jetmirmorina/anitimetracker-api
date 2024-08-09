@@ -11,13 +11,12 @@ const { protect, authorize } = require("../middleware/auth");
 
 const router = express.Router({ mergeParams: true });
 router.use(protect);
-router.use(authorize("admin"));
 
-router.route("/").post(createJobSite).get(getAllJobSites);
+router.route("/").post(authorize("admin"), createJobSite).get(getAllJobSites);
 router
   .route("/:id")
   .get(getSingleJobsite)
-  .put(updateJobSite)
-  .delete(deleteJobSite);
+  .put(authorize("admin"), updateJobSite)
+  .delete(authorize("admin"), deleteJobSite);
 
 module.exports = router;

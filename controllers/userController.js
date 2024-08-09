@@ -190,21 +190,4 @@ exports.userPhotoUpload = asyncHandler(async (req, res, next) => {
     success: true,
     data: uploadResult.Location,
   });
-  // file.mv(`${process.env.FILE_UPLOAD_PATH}/${file.name}`, async (error) => {
-  //   if (error) {
-  //     console.log(error);
-  //     return next(new ErrorResponse(`Problem with file upload`, 500));
-  //   }
-
-  //   const user = await User.findByIdAndUpdate(
-  //     req.params.id,
-  //     { photo: file.name },
-  //     { new: true, runValidators: true }
-  //   );
-
-  // res.status(200).json({
-  //   success: true,
-  //   data: file.name,
-  // });
-  //});
 });

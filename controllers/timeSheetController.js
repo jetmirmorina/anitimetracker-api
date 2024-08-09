@@ -127,6 +127,8 @@ exports.clockout = asyncHandler(async (req, res, next) => {
     req.user.id
   );
 
+  await User.findByIdAndUpdate(req.user.id, { activityLocation: undefined });
+
   // Update the TimeSheet document
   const updatedTimeSheet = await TimeSheet.findByIdAndUpdate(
     timesheetId,
@@ -340,7 +342,6 @@ exports.activity = asyncHandler(async (req, res, next) => {
 // @access  Private
 exports.getActivities = asyncHandler(async (req, res, next) => {
   const companyId = req.params.companyId;
-  console.log(`req.user.role: ${req.user.role}`.bgRed);
   if (req.user.role === "employee") {
     const timeSheet = await TimeSheet.find({
       company: companyId,
@@ -348,7 +349,6 @@ exports.getActivities = asyncHandler(async (req, res, next) => {
     }).populate({
       path: "activity",
     });
-    console.log("eployee".bgRed);
     res.status(200).json({ success: true, data: timeSheet });
   } else {
     const timeSheet = await TimeSheet.find({ company: companyId }).populate({
