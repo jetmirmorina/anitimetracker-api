@@ -5,6 +5,8 @@ const TimesheetActivity = require("../models/timeSheetActivityModel");
 const Company = require("../models/companyModel");
 const JobSite = require("../models/jobSiteModel");
 const haversineDistance = require("../utils/distance");
+const User = require("../models/userModel");
+
 const {
   calculateUserClockinDuration,
   calculateAdminlockinDuration,
@@ -135,7 +137,7 @@ exports.clockout = asyncHandler(async (req, res, next) => {
     {
       clockinTime: totalTime,
       status: "clockout",
-      endLocation: { latitude, longitude },
+      endLocation: { undefined, undefined },
     },
     { new: true } // This option returns the updated document
   );
@@ -250,6 +252,54 @@ exports.endBreak = asyncHandler(async (req, res, next) => {
   );
 
   res.status(201).json({ success: true, data: updatedTimeSheet });
+});
+
+// @desc    Start Break
+// @route   POST /api/v1/company/:companyId/activity/startbreak/:timesheetId
+// @access  Private
+exports.startBreak = asyncHandler(async (req, res, next) => {
+  const companyId = req.params.companyId;
+  const timesheetId = req.params.timesheetId;
+
+  if (!companyId) {
+    return next(new ErrorResponse(`Please provide companyId`, 400));
+  }
+
+  if (!timesheetId) {
+    return next(new ErrorResponse(`Please provide timesheetId`, 400));
+  }
+
+  const { latitude, longitude, address, fullDate, date } = req.body;
+
+  let activity = new TimesheetActivity({
+    location: { latitude, longitude },
+    address,
+    fullDate,
+    date,
+    type: "startBreak",
+    user: req.user.id,
+    timesheet: timesheetId,
+  });
+
+  let timeSheet = await TimeSheet.findById(timesheetId);
+  if (!timeSheet) {
+    return next(
+      new ErrorResponse(`Timesheet with id: ${companyId} does not exist`, 404)
+    );
+  }
+
+  timeSheet.activity.push(activity._id);
+
+  await activity.save();
+  await timeSheet.save();
+
+  timeSheet = await TimeSheet.findByIdAndUpdate(
+    timesheetId,
+    { status: "onBreak", endLocation: { latitude, longitude } },
+    { new: true } // This option returns the updated document
+  );
+
+  res.status(201).json({ success: true, data: timeSheet });
 });
 
 // @desc    Post Timesheet Note
@@ -427,4 +477,26 @@ exports.getActivity = asyncHandler(async (req, res, next) => {
   }
 
   res.status(200).json({ success: true, json: timesheet });
+});
+
+// @desc    Update Clock In Restriction
+// @route   GET /ap1/v1/company/:companyId/activity/users
+// @access  Privare
+exports.getUserActivities = asyncHandler(async (req, res, next) => {
+  console.log(`=============== ${req.params.companyId}`.bgRed);
+
+  let company = await Company.findById(req.params.companyId);
+  if (!company) {
+    return next(
+      new ErrorResponse(
+        `No company found with id: ${req.params.companyId}`,
+        404
+      )
+    );
+  }
+
+  const user = await User.find({ companies: req.params.companyId }).select(
+    "+activityStatus +activityAdress +activityLocation.latitude +activityLocation.longitude"
+  );
+  res.status(200).json({ success: true, data: user });
 });

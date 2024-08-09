@@ -240,7 +240,9 @@ exports.updateDetails = asyncHandler(async (req, res, next) => {
 // @route   PUT /ap1/v1/auth/updatepassword
 // @access  Private
 exports.updatePassword = asyncHandler(async (req, res, next) => {
-  const user = await User.findById(req.user.id).select("+password");
+  const user = await User.findById(req.user.id)
+    .select("+activityStatus")
+    .select("+activityLocation");
 
   // Check current password
   if (!(await user.matchPassword(req.body.currentPassword))) {
@@ -321,7 +323,6 @@ const addUserToCompany = asyncHandler(async (userId, companyId, res) => {
     { new: true, runValidators: true }
   );
 
-  console.log(`User Company===> ${user}`);
   if (!user) {
     return next(new ErrorResponse("User or Company not found", 400));
   }
