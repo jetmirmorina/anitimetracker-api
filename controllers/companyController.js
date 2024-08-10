@@ -39,7 +39,7 @@ exports.getCompany = asyncHandler(async (req, res, next) => {
   const company = await Company.findById(req.params.id)
     .populate({
       path: "users",
-      select: "name email role isEmailConfirmed",
+      select: "name email role isEmailConfirmed -companies",
     })
     .populate({
       path: "industry",

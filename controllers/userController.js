@@ -41,7 +41,7 @@ exports.getUser = asyncHandler(async (req, res, next) => {
     );
   }
 
-  res.status(200).json({ success: true, data: user });
+  res.status(200).json({ success: true, data: formatMongoData(user) });
 });
 
 // @dec     Delete user by id
@@ -66,7 +66,7 @@ exports.deleteUser = asyncHandler(async (req, res, next) => {
   }
 
   user = await User.findByIdAndDelete(req.params.id);
-  res.status(200).json({ sucess: true, data: user });
+  res.status(200).json({ sucess: true, data: formatMongoData(user) });
 });
 
 // @desc    Update User Role
@@ -99,7 +99,7 @@ exports.updateUserRole = asyncHandler(async (req, res, next) => {
     }
   );
 
-  res.status(200).json({ success: true, data: user });
+  res.status(200).json({ success: true, data: formatMongoData(user) });
 });
 
 // @desc    Update User Full Name
@@ -132,7 +132,7 @@ exports.updateUserFullName = asyncHandler(async (req, res, next) => {
     }
   );
 
-  res.status(200).json({ success: true, data: user });
+  res.status(200).json({ success: true, data: formatMongoData(user) });
 });
 
 // @desc    Upload photo for user
