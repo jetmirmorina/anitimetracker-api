@@ -44,42 +44,57 @@ TimeSheetActivitySchema.statics.saveUserStatus = async function (
   }
 };
 
-TimeSheetActivitySchema.post("save", function () {
-  let activity = "";
-  let address = this.address;
-  let location = this.location;
+TimeSheetActivitySchema.post(
+  "save",
+  function () {
+    let activity = "";
+    let address = this.address;
+    let location = this.location;
 
-  switch (this.type) {
-    case "clockin":
-      console.log("clockin");
-      activity = "clockin";
+    switch (this.type) {
+      case "clockin":
+        console.log("clockin");
+        activity = "clockin";
 
-      break;
-    case "startBreak":
-      console.log("onBreak");
-      activity = "onBreak";
-      break;
-    case "endBreak":
-      console.log("clockin");
-      activity = "clockin";
-      break;
+        break;
+      case "startBreak":
+        console.log("onBreak");
+        activity = "onBreak";
+        break;
+      case "endBreak":
+        console.log("clockin");
+        activity = "clockin";
+        break;
 
-    case "clockout":
-      console.log(`clockout`.bold.bgGreen);
-      activity = "offline";
-      address = "";
-      location = {};
-      break;
-    default:
-      console.log("Unknown action");
-      break;
+      case "clockout":
+        console.log(`clockout`.bold.bgGreen);
+        activity = "offline";
+        address = "";
+        location = {};
+        break;
+      default:
+        console.log("Unknown action");
+        break;
+    }
+    this.constructor.saveUserStatus(
+      this.user.toString(),
+      activity,
+      location,
+      address
+    );
+  },
+  {
+    toJSON: { virtuals: true },
+    toObject: {
+      virtuals: true,
+      transform: function (doc, ret, options) {
+        ret.id = ret._id;
+        delete ret._id;
+        delete ret.__v;
+        return ret;
+      },
+    },
   }
-  this.constructor.saveUserStatus(
-    this.user.toString(),
-    activity,
-    location,
-    address
-  );
-});
+);
 
 module.exports = mongoose.model("TimeSheetActivity", TimeSheetActivitySchema);

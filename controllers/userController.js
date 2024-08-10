@@ -3,6 +3,7 @@ const asyncHandler = require("../middleware/async");
 const User = require("../models/userModel");
 const path = require("path");
 const uploadFileToS3 = require("../utils/uploadFileToS3");
+const { formatMongoData } = require("../utils/dbHelper");
 
 // @desc    Get all Users
 // @route   GET /api/v1/users
@@ -22,7 +23,7 @@ exports.getAllUsers = asyncHandler(async (req, res, next) => {
         )
       );
     }
-    res.status(200).json({ success: true, data: users });
+    res.status(200).json({ success: true, data: formatMongoData(users) });
   } else {
     res.status(200).json({ success: true, data: res.advancedResults });
   }

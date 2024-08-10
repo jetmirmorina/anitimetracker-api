@@ -3,6 +3,7 @@ const asyncHandler = require("../middleware/async");
 const Company = require("../models/companyModel");
 const User = require("../models/userModel");
 const path = require("path");
+const { formatMongoData } = require("../utils/dbHelper");
 
 // @desc    Create New Company
 // @route   POST /api/v1/company
@@ -21,7 +22,7 @@ exports.createCompany = asyncHandler(async (req, res, next) => {
     { new: true, runValidators: true }
   );
 
-  res.status(201).json({ success: true, data: company });
+  res.status(201).json({ success: true, data: formatMongoData(company) });
 });
 
 // @desc    Get All Companies
@@ -51,7 +52,7 @@ exports.getCompany = asyncHandler(async (req, res, next) => {
     );
   }
 
-  res.status(200).json({ success: true, data: company });
+  res.status(200).json({ success: true, data: formatMongoData(company) });
 });
 
 // @desc    Update Clock In Restriction
@@ -73,7 +74,7 @@ exports.updateClockInRestrictions = asyncHandler(async (req, res, next) => {
     { new: true, runValidators: true }
   );
 
-  res.status(200).json({ success: true, data: company });
+  res.status(200).json({ success: true, data: formatMongoData(company) });
 });
 
 // @desc    Update Company
@@ -102,7 +103,7 @@ exports.updateCompany = asyncHandler(async (req, res, next) => {
     runValidators: true,
   });
 
-  res.status(200).json({ success: true, data: company });
+  res.status(200).json({ success: true, data: formatMongoData(company) });
 });
 
 // @desc    Delete Company
@@ -128,7 +129,7 @@ exports.deleteCompany = asyncHandler(async (req, res, next) => {
 
   company = await Company.findOneAndDelete(req.params.id);
 
-  res.status(200).json({ success: true, data: company });
+  res.status(200).json({ success: true, data: formatMongoData(company) });
 });
 
 // @desc    Upload photo for company

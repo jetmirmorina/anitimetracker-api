@@ -2,6 +2,7 @@ const ErrorResponse = require("../utils/errorResponse");
 const asyncHandler = require("../middleware/async");
 const Company = require("../models/companyModel");
 const CompanyJob = require("../models/copanyJobModel");
+const { formatMongoData } = require("../utils/dbHelper");
 
 // @desc    Create a Job for specific Company
 // @route   POST /api/v1/company/:companyId/job
@@ -20,7 +21,7 @@ exports.createJob = asyncHandler(async (req, res, next) => {
   req.body.company = companyId;
 
   const companyJob = await CompanyJob.create(req.body);
-  res.status(201).json({ success: true, data: companyJob });
+  res.status(201).json({ success: true, data: formatMongoData(companyJob) });
 });
 
 // @desc    Get all companies
@@ -32,7 +33,7 @@ exports.getJobs = asyncHandler(async (req, res, next) => {
 
   if (companyId) {
     const jobs = await CompanyJob.find({ company: companyId });
-    res.status(200).json({ success: true, data: jobs });
+    res.status(200).json({ success: true, data: formatMongoData(jobs) });
   } else {
     res.status(200).json(res.advancedResults);
   }
@@ -49,7 +50,7 @@ exports.deleteJob = asyncHandler(async (req, res, next) => {
   }
 
   job = await CompanyJob.findByIdAndDelete(req.params.id);
-  res.status(200).json({ success: true, data: job });
+  res.status(200).json({ success: true, data: formatMongoData(job) });
 });
 
 // @desc    Get job by id
@@ -67,7 +68,7 @@ exports.updateJob = asyncHandler(async (req, res, next) => {
     { name: req.body.name },
     { new: true, runValidators: true }
   );
-  res.status(200).json({ success: true, data: job });
+  res.status(200).json({ success: true, data: formatMongoData(job) });
 });
 
 // @desc    Update job by id
@@ -86,5 +87,5 @@ exports.getJob = asyncHandler(async (req, res, next) => {
     { new: true, runValidators: true }
   );
 
-  res.status(200).json({ success: true, data: job });
+  res.status(200).json({ success: true, data: formatMongoData(job) });
 });

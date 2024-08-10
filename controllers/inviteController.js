@@ -5,6 +5,7 @@ const Invitation = require("../models/invitationModel");
 const User = require("../models/userModel");
 const Company = require("../models/companyModel");
 const sendEmail = require("../utils/sendEmail");
+const { formatMongoData } = require("../utils/dbHelper");
 
 // @desc    Invite User
 // @route   POST /company/:companyId/invite
@@ -46,7 +47,7 @@ exports.inviteUser = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    data: invitations,
+    data: formatMongoData(invitations),
   });
 });
 
@@ -113,7 +114,7 @@ exports.acceptInvite = asyncHandler(async (req, res, next) => {
   });
 
   await invitation.deleteOne();
-  res.send(201).json({ success: true, data: user });
+  res.send(201).json({ success: true, data: formatMongoData(user) });
 });
 
 // @desc    Get Invitation for specific Company
@@ -126,7 +127,7 @@ exports.getInvites = asyncHandler(async (req, res, next) => {
       res.status(200).json({ success: true, data: [] });
     }
     const companies = await Invitation.find({ company: req.params.companyId });
-    res.status(200).json({ success: true, data: companies });
+    res.status(200).json({ success: true, data: formatMongoData(companies) });
   } else {
     res.status(200).json({ success: true, data: res.advancedResults });
   }
@@ -145,7 +146,7 @@ exports.getInvite = asyncHandler(async (req, res, next) => {
       new ErrorResponse(`No company found with id: ${req.params.id}`)
     );
   }
-  res.status(200).json({ success: true, data: companies });
+  res.status(200).json({ success: true, data: formatMongoData(companies) });
 });
 
 // @desc    Delete Invitation by id
@@ -159,5 +160,5 @@ exports.deleteInvite = asyncHandler(async (req, res, next) => {
     );
   }
   companies = await Invitation.findByIdAndDelete(req.params.id);
-  res.status(200).json({ success: true, data: companies });
+  res.status(200).json({ success: true, data: formatMongoData(companies) });
 });

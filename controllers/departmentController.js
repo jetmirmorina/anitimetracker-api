@@ -2,6 +2,7 @@ const ErrorResponse = require("../utils/errorResponse");
 const asyncHandler = require("../middleware/async");
 const Department = require("../models/departmentModel");
 const Company = require("../models/companyModel");
+const { formatMongoData } = require("../utils/dbHelper");
 
 // @desc    Create New Department
 // @route   POST /api/v1/company/:companyId/department
@@ -24,7 +25,7 @@ exports.createDepartment = asyncHandler(async (req, res, next) => {
     user: req.user.id,
   });
 
-  res.status(201).json({ success: true, data: department });
+  res.status(201).json({ success: true, data: formatMongoData(department) });
 });
 
 // @desc    Get all Departments
@@ -36,10 +37,10 @@ exports.getDepartments = asyncHandler(async (req, res, next) => {
     const departments = await Department.find({
       company: req.params.companyId,
     });
-    res.status(200).json({ success: true, data: departments });
+    res.status(200).json({ success: true, data: formatMongoData(departments) });
   } else {
     const departments = await Department.find();
-    res.status(200).json({ success: true, data: departments });
+    res.status(200).json({ success: true, data: formatMongoData(departments) });
   }
 });
 
@@ -53,7 +54,7 @@ exports.getDepartment = asyncHandler(async (req, res, next) => {
       new ErrorResponse(`No department found with id: ${req.params.id}`, 404)
     );
   }
-  res.status(200).json({ success: true, data: departments });
+  res.status(200).json({ success: true, data: formatMongoData(departments) });
 });
 
 // @desc    Delete Department
@@ -67,7 +68,7 @@ exports.deleteDepartment = asyncHandler(async (req, res, next) => {
     );
   }
   department = await Department.findByIdAndDelete(req.params.id);
-  res.status(200).json({ success: true, data: department });
+  res.status(200).json({ success: true, data: formatMongoData(department) });
 });
 
 // @desc    Update Department
@@ -85,7 +86,7 @@ exports.updateDepartment = asyncHandler(async (req, res, next) => {
     { name: req.body.name },
     { new: true, runValidators: true }
   );
-  res.status(200).json({ success: true, data: department });
+  res.status(200).json({ success: true, data: formatMongoData(department) });
 });
 
 // @desc    Add Members in Department
@@ -113,16 +114,13 @@ exports.addUsers = asyncHandler(async (req, res, next) => {
   const existingUsers = department.users.map((user) => user.toString());
   const allUsers = [...new Set([...existingUsers, ...users])];
 
-  console.log(`existingUsers: ${existingUsers}`.bgCyan.bold);
-  console.log(`allUsers ${allUsers}`.bgBlue.bold);
-
   department = await Department.findByIdAndUpdate(
     req.params.id,
     { users: allUsers },
     { new: true, runValidators: true }
   ).populate("users");
 
-  res.status(200).json({ success: true, data: department });
+  res.status(200).json({ success: true, data: formatMongoData(department) });
 });
 
 // @desc    Get Members Of Department
@@ -137,7 +135,7 @@ exports.getMembers = asyncHandler(async (req, res, next) => {
     );
   }
 
-  res.status(200).json({ success: true, data: department });
+  res.status(200).json({ success: true, data: formatMongoData(department) });
 });
 
 // @desc    Remove Member From Department
@@ -161,5 +159,5 @@ exports.deleteMember = asyncHandler(async (req, res, next) => {
   console.log(` department.users: ${department.users}`.bgCyan);
   await department.save();
 
-  res.status(200).json({ success: true, data: department });
+  res.status(200).json({ success: true, data: formatMongoData(department) });
 });

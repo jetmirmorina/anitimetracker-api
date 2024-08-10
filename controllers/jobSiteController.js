@@ -2,6 +2,7 @@ const ErrorResponse = require("../utils/errorResponse");
 const asyncHandler = require("../middleware/async");
 const JobSite = require("../models/jobSiteModel");
 const Company = require("../models/companyModel");
+const { formatMongoData } = require("../utils/dbHelper");
 
 // @desc    Create a jobSite for company
 // @route   POST /api/v1/jobsite
@@ -27,7 +28,7 @@ exports.createJobSite = asyncHandler(async (req, res, next) => {
     radius,
   });
 
-  res.status(201).json({ success: true, data: jobSite });
+  res.status(201).json({ success: true, data: formatMongoData(jobSite) });
 });
 
 // @desc    Get all job sites
@@ -48,10 +49,10 @@ exports.getAllJobSites = asyncHandler(async (req, res, next) => {
         )
       );
     }
-    res.status(200).json({ success: true, data: jobSites });
+    res.status(200).json({ success: true, data: formatMongoData(jobSites) });
   } else {
     const jobSites = await JobSite.find().sort("-createdAt");
-    res.status(200).json({ success: true, data: jobSites });
+    res.status(200).json({ success: true, data: formatMongoData(jobSites) });
   }
 });
 
@@ -67,7 +68,7 @@ exports.getSingleJobsite = asyncHandler(async (req, res, next) => {
     );
   }
 
-  res.status(200).json({ success: true, data: jobsite });
+  res.status(200).json({ success: true, data: formatMongoData(jobsite) });
 });
 
 // @desc    Delete Single Job site
@@ -82,7 +83,7 @@ exports.deleteJobSite = asyncHandler(async (req, res, next) => {
     );
   }
   jobsite = await JobSite.findByIdAndDelete(req.params.id);
-  res.status(200).json({ success: true, data: jobsite });
+  res.status(200).json({ success: true, data: formatMongoData(jobsite) });
 });
 
 // @desc    Update Single Job site
@@ -98,5 +99,5 @@ exports.updateJobSite = asyncHandler(async (req, res, next) => {
     new: true,
     runValidators: true,
   });
-  res.status(200).json({ success: true, data: jobsite });
+  res.status(200).json({ success: true, data: formatMongoData(jobsite) });
 });

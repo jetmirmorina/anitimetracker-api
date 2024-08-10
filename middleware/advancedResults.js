@@ -1,3 +1,5 @@
+const { formatMongoData } = require("../utils/dbHelper");
+
 const advancedResults = (model, populate) => async (req, res, next) => {
   let query;
 
@@ -72,7 +74,7 @@ const advancedResults = (model, populate) => async (req, res, next) => {
     success: true,
     count: results.length,
     pagination,
-    data: results,
+    data: formatMongoData(results),
   };
 
   next();

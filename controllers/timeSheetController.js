@@ -6,6 +6,7 @@ const Company = require("../models/companyModel");
 const JobSite = require("../models/jobSiteModel");
 const haversineDistance = require("../utils/distance");
 const User = require("../models/userModel");
+const { formatMongoData } = require("../utils/dbHelper");
 
 const {
   calculateUserClockinDuration,
@@ -494,11 +495,11 @@ exports.getUserActivities = asyncHandler(async (req, res, next) => {
   }
 
   const users = await User.find({ companies: req.params.companyId }).select(
-    "+activityStatus +activityAdress +activityLocation.latitude +activityLocation.longitude"
+    "+activityStatus +activityAdress +activityLocation.latitude +activityLocation.longitude -companies"
   );
   const sortedUsers = users.sort((a, b) => {
     const order = ["clockin", "onbreak", "offline"];
     return order.indexOf(a.activityStatus) - order.indexOf(b.activityStatus);
   });
-  res.status(200).json({ success: true, data: sortedUsers });
+  res.status(200).json({ success: true, data: formatMongoData(sortedUsers) });
 });

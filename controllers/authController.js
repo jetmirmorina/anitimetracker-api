@@ -5,6 +5,7 @@ const asyncHandler = require("../middleware/async");
 const sendEmail = require("../utils/sendEmail");
 const User = require("../models/userModel");
 const Company = require("../models/companyModel");
+const { formatMongoData } = require("../utils/dbHelper");
 
 // @desc    Register user
 // @route   POST /ap1/v1/auth/register
@@ -311,7 +312,7 @@ const sendTokenResponse = (user, statusCode, res) => {
   res
     .status(statusCode)
     .cookie("token", token, options)
-    .json({ success: true, data: user, token });
+    .json({ success: true, data: formatMongoData(user), token });
 };
 
 // Function to add a user to a company and vice versa

@@ -1,13 +1,14 @@
 const ErrorResponse = require("../utils/errorResponse");
 const asyncHandler = require("../middleware/async");
 const Industry = require("../models/industryModel");
+const { formatMongoData } = require("../utils/dbHelper");
 
 // @desc    Create Industry
 // @route   POST /api/v1/industry
 // @access  Public
 exports.registerIndustry = asyncHandler(async (req, res, next) => {
   const industry = await Industry.create(req.body);
-  res.status(201).json({ sucess: true, data: industry });
+  res.status(201).json({ sucess: true, data: formatMongoData(industry) });
 });
 
 // @desc    Get All Industries
@@ -28,7 +29,7 @@ exports.getIndustry = asyncHandler(async (req, res, next) => {
       new ErrorResponse(`No industry found with id: ${req.params.id}`)
     );
   }
-  res.status(200).json({ sucess: true, data: industry });
+  res.status(200).json({ sucess: true, data: formatMongoData(industry) });
 });
 
 // @desc    Delete Industry by id
@@ -44,7 +45,7 @@ exports.deleteIndustry = asyncHandler(async (req, res, next) => {
   }
 
   industry = await Industry.findByIdAndDelete(req.params.id);
-  res.status(200).json({ sucess: true, data: industry });
+  res.status(200).json({ sucess: true, data: formatMongoData(industry) });
 });
 
 // @desc    Update Industry
@@ -63,5 +64,5 @@ exports.updateIndustry = asyncHandler(async (req, res, next) => {
     new: true,
     runValidators: true,
   });
-  res.status(200).json({ sucess: true, data: industry });
+  res.status(200).json({ sucess: true, data: formatMongoData(industry) });
 });
