@@ -37,9 +37,8 @@ router
     protect,
     advancedResults(Company, {
       path: "users",
-      select: "name email role isEmailConfirmed",
+      select: "name email role isEmailConfirmed -companies",
     }),
-
     getCompanies
   );
 
