@@ -69,7 +69,7 @@ exports.clockin = asyncHandler(async (req, res, next) => {
     activity: [activity._id],
     company: companyId,
     fullDate: fullDate,
-    staus: "clockin",
+    status: "clockin",
     startLocation: { latitude, longitude },
     startTime: fullDate,
   });
@@ -135,18 +135,25 @@ exports.clockout = asyncHandler(async (req, res, next) => {
     activityLocation: undefined,
     activityAdress: undefined,
   });
-
   // Update the TimeSheet document
-  const updatedTimeSheet = await TimeSheet.findByIdAndUpdate(
-    timesheetId,
-    {
-      clockinTime: totalTime,
-      status: "clockout",
-      endLocation: { undefined, undefined },
-      endTime: fullDate,
-    },
-    { new: true } // This option returns the updated document
-  );
+
+  // const updatedTimeSheet = await TimeSheet.findByIdAndUpdate(
+  //   timesheetId,
+  //   {
+  //     clockinTime: totalTime,
+  //     status: "clockout",
+  //     endLocation: { latitude, longitude },
+  //     endTime: fullDate,
+  //   },
+  //   { new: true } // This option returns the updated document
+  // );
+
+  timeSheet.clockinTime = totalTime;
+  timeSheet.status = "clockout";
+  timeSheet.endLocation = { latitude, longitude };
+  timeSheet.endTime = fullDate;
+
+  await timeSheet.save();
 
   res
     .status(201)
@@ -159,7 +166,6 @@ exports.clockout = asyncHandler(async (req, res, next) => {
 exports.startBreak = asyncHandler(async (req, res, next) => {
   const companyId = req.params.companyId;
   const timesheetId = req.params.timesheetId;
-
   if (!companyId) {
     return next(new ErrorResponse(`Please provide companyId`, 400));
   }
@@ -388,8 +394,6 @@ exports.activity = asyncHandler(async (req, res, next) => {
     req.user.id
   );
 
-  console.log(`Difference: ${difference}`.bgGreen);
-
   await calculateTimeDifferences(timesheet.id, date, req.user.id).then(
     (result) => console.log(`Total Duration: ${result}`)
   );
@@ -401,7 +405,6 @@ exports.activity = asyncHandler(async (req, res, next) => {
 // @route   POST /api/v1/company/:companyId/activity
 // @access  Private
 exports.getActivities = asyncHandler(async (req, res, next) => {
-  console.log(`=======`.bgGreen);
   const companyId = req.params.companyId;
   if (req.user.role === "employee") {
     const timeSheet = await TimeSheet.find({

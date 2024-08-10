@@ -11,6 +11,8 @@ const TimeSheetSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: "Company",
     },
+    status: { type: String, default: "" },
+
     activity: [
       {
         type: mongoose.Schema.ObjectId,
@@ -29,7 +31,6 @@ const TimeSheetSchema = new mongoose.Schema(
     onBreakTime: { type: String, default: "" },
     fullDate: Date,
     date: String,
-    staus: String,
     note: {
       type: String,
       maxlength: [250, "Note should be max 250 characters"],
