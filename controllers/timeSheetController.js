@@ -71,6 +71,7 @@ exports.clockin = asyncHandler(async (req, res, next) => {
     fullDate: fullDate,
     staus: "clockin",
     startLocation: { latitude, longitude },
+    startTime: date,
   });
 
   await timesheet.save();
@@ -130,7 +131,10 @@ exports.clockout = asyncHandler(async (req, res, next) => {
     req.user.id
   );
 
-  await User.findByIdAndUpdate(req.user.id, { activityLocation: undefined });
+  await User.findByIdAndUpdate(req.user.id, {
+    activityLocation: undefined,
+    activityAdress: undefined,
+  });
 
   // Update the TimeSheet document
   const updatedTimeSheet = await TimeSheet.findByIdAndUpdate(
@@ -139,11 +143,14 @@ exports.clockout = asyncHandler(async (req, res, next) => {
       clockinTime: totalTime,
       status: "clockout",
       endLocation: { undefined, undefined },
+      endTime: date,
     },
     { new: true } // This option returns the updated document
   );
 
-  res.status(201).json({ success: true, data: updatedTimeSheet });
+  res
+    .status(201)
+    .json({ success: true, data: formatMongoData(updatedTimeSheet) });
 });
 
 // @desc    Start Break
@@ -191,7 +198,7 @@ exports.startBreak = asyncHandler(async (req, res, next) => {
     { new: true } // This option returns the updated document
   );
 
-  res.status(201).json({ success: true, data: timeSheet });
+  res.status(201).json({ success: true, data: formatMongoData(timeSheet) });
 });
 
 // @desc    End Break
@@ -252,7 +259,9 @@ exports.endBreak = asyncHandler(async (req, res, next) => {
     { new: true } // This option returns the updated document
   );
 
-  res.status(201).json({ success: true, data: updatedTimeSheet });
+  res
+    .status(201)
+    .json({ success: true, data: formatMongoData(updatedTimeSheet) });
 });
 
 // @desc    Start Break
@@ -300,7 +309,7 @@ exports.startBreak = asyncHandler(async (req, res, next) => {
     { new: true } // This option returns the updated document
   );
 
-  res.status(201).json({ success: true, data: timeSheet });
+  res.status(201).json({ success: true, data: formatMongoData(timeSheet) });
 });
 
 // @desc    Post Timesheet Note
@@ -321,7 +330,7 @@ exports.addNote = asyncHandler(async (req, res, next) => {
     { new: true, runValidators: true }
   );
 
-  res.status(201).json({ success: true, data: timesheet });
+  res.status(201).json({ success: true, data: formatMongoData(timesheet) });
 });
 
 // @desc    Start activity
@@ -385,13 +394,14 @@ exports.activity = asyncHandler(async (req, res, next) => {
     (result) => console.log(`Total Duration: ${result}`)
   );
 
-  res.status(201).json({ success: true, data: timesheet });
+  res.status(201).json({ success: true, data: formatMongoData(timesheet) });
 });
 
 // @desc    Get activities
 // @route   POST /api/v1/company/:companyId/activity
 // @access  Private
 exports.getActivities = asyncHandler(async (req, res, next) => {
+  console.log(`=======`.bgGreen);
   const companyId = req.params.companyId;
   if (req.user.role === "employee") {
     const timeSheet = await TimeSheet.find({
@@ -399,14 +409,16 @@ exports.getActivities = asyncHandler(async (req, res, next) => {
       user: req.user.id,
     }).populate({
       path: "activity",
+      select: "type location address fullDate date",
     });
-    res.status(200).json({ success: true, data: timeSheet });
+    res.status(200).json({ success: true, data: formatMongoData(timeSheet) });
   } else {
     const timeSheet = await TimeSheet.find({ company: companyId }).populate({
       path: "activity",
+      select: "type location address fullDate date",
     });
 
-    res.status(200).json({ success: true, data: timeSheet });
+    res.status(200).json({ success: true, data: formatMongoData(timeSheet) });
   }
 });
 
@@ -434,7 +446,7 @@ exports.getActivitieByDate = asyncHandler(async (req, res, next) => {
 
       .populate({ path: "user", select: "name photo" });
 
-    res.status(200).json({ success: true, data: timeSheet });
+    res.status(200).json({ success: true, data: formatMongoData(timeSheet) });
   }
 });
 
@@ -457,7 +469,7 @@ exports.getUserTmesheets = asyncHandler(async (req, res, next) => {
     select: "type address fullDate date endBreak location",
   });
 
-  res.status(200).json({ success: true, data: timeShees });
+  res.status(200).json({ success: true, data: formatMongoData(timeShees) });
 });
 
 // @desc    Get Timesheet By Id
@@ -477,7 +489,7 @@ exports.getActivity = asyncHandler(async (req, res, next) => {
     );
   }
 
-  res.status(200).json({ success: true, json: timesheet });
+  res.status(200).json({ success: true, json: formatMongoData(timesheet) });
 });
 
 // @desc    Update Clock In Restriction

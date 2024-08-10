@@ -35,6 +35,8 @@ const TimeSheetSchema = new mongoose.Schema(
       maxlength: [250, "Note should be max 250 characters"],
       default: "",
     },
+    startTime: { type: Date, default: "" },
+    endTime: { type: Date, default: "" },
   },
   {
     toJSON: { virtuals: true },
