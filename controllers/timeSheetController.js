@@ -71,7 +71,7 @@ exports.clockin = asyncHandler(async (req, res, next) => {
     fullDate: fullDate,
     staus: "clockin",
     startLocation: { latitude, longitude },
-    startTime: date,
+    startTime: fullDate,
   });
 
   await timesheet.save();
@@ -143,7 +143,7 @@ exports.clockout = asyncHandler(async (req, res, next) => {
       clockinTime: totalTime,
       status: "clockout",
       endLocation: { undefined, undefined },
-      endTime: date,
+      endTime: fullDate,
     },
     { new: true } // This option returns the updated document
   );
