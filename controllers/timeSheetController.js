@@ -81,7 +81,7 @@ exports.clockin = asyncHandler(async (req, res, next) => {
     { new: true, runValidators: true }
   );
 
-  res.status(201).json({ success: true, data: timesheet });
+  res.status(201).json({ success: true, data: formatMongoData(timesheet) });
 });
 
 // @desc    Clock Out
