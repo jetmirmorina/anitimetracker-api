@@ -310,7 +310,7 @@ exports.startBreak = asyncHandler(async (req, res, next) => {
 
   timeSheet = await TimeSheet.findByIdAndUpdate(
     timesheetId,
-    { status: "onBreak", endLocation: { latitude, longitude } },
+    { status: "onBreak" },
     { new: true } // This option returns the updated document
   );
 
@@ -519,13 +519,9 @@ exports.getUserActivities = asyncHandler(async (req, res, next) => {
 });
 
 // @desc    Update Clock In Restriction
-// @route   GET /ap1/v1/activity/user/:userid/date/:date
-// @access  Privare
+// @route   GET /api/v1/activity/user/:userid/date/:date
+// @access  Private
 exports.getUserActivityByDate = asyncHandler(async (req, res, next) => {
-  console.log(
-    `req.params.userid: ${req.params.userid} req.params.date: ${req.params.date}`
-      .bgRed
-  );
   const timesheets = await TimeSheet.find({
     user: req.params.userid,
     date: req.params.date,
@@ -535,5 +531,7 @@ exports.getUserActivityByDate = asyncHandler(async (req, res, next) => {
     })
     .select("-company");
 
-  res.status(200).json({ success: true, data: formatMongoData(timesheets) });
+  const formattedData = formatMongoData(timesheets);
+
+  res.status(200).json({ success: true, data: formattedData });
 });
