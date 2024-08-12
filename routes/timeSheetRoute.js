@@ -11,6 +11,7 @@ const {
   getActivity,
   getUserTmesheets,
   getUserActivities,
+  getUserActivityByDate,
 } = require("../controllers/timeSheetController");
 const TimeSheet = require("../models/timeSheetModel");
 const TimesheetActivity = require("../models/timeSheetActivityModel");
@@ -31,5 +32,6 @@ router.route("/startbreak/:timesheetId").post(startBreak);
 router.route("/endbreak/:timesheetId").post(endBreak);
 router.route("/date/:date/user/:userid").get(getUserTmesheets);
 router.route("/users").patch(getUserActivities);
+router.route("/user/:userid/date/:date").get(getUserActivityByDate);
 
 module.exports = router;

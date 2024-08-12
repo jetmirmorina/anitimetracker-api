@@ -200,7 +200,7 @@ exports.startBreak = asyncHandler(async (req, res, next) => {
 
   timeSheet = await TimeSheet.findByIdAndUpdate(
     timesheetId,
-    { status: "onBreak", endLocation: { latitude, longitude } },
+    { status: "onBreak" },
     { new: true } // This option returns the updated document
   );
 
@@ -260,7 +260,6 @@ exports.endBreak = asyncHandler(async (req, res, next) => {
     {
       onBreakTime: totalTime,
       status: "clockin",
-      endLocation: { latitude, longitude },
     },
     { new: true } // This option returns the updated document
   );
@@ -496,7 +495,7 @@ exports.getActivity = asyncHandler(async (req, res, next) => {
 });
 
 // @desc    Update Clock In Restriction
-// @route   GET /ap1/v1/company/:companyId/activity/users
+// @route   GET /ap1/v1/company/:companyId/activity/user/:userId/date/:date
 // @access  Privare
 exports.getUserActivities = asyncHandler(async (req, res, next) => {
   let company = await Company.findById(req.params.companyId);
@@ -517,4 +516,24 @@ exports.getUserActivities = asyncHandler(async (req, res, next) => {
     return order.indexOf(a.activityStatus) - order.indexOf(b.activityStatus);
   });
   res.status(200).json({ success: true, data: formatMongoData(sortedUsers) });
+});
+
+// @desc    Update Clock In Restriction
+// @route   GET /ap1/v1/activity/user/:userid/date/:date
+// @access  Privare
+exports.getUserActivityByDate = asyncHandler(async (req, res, next) => {
+  console.log(
+    `req.params.userid: ${req.params.userid} req.params.date: ${req.params.date}`
+      .bgRed
+  );
+  const timesheets = await TimeSheet.find({
+    user: req.params.userid,
+    date: req.params.date,
+  })
+    .populate({
+      path: "activity",
+    })
+    .select("-company");
+
+  res.status(200).json({ success: true, data: formatMongoData(timesheets) });
 });
