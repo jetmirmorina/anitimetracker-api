@@ -495,7 +495,7 @@ exports.getActivity = asyncHandler(async (req, res, next) => {
 });
 
 // @desc    Update Clock In Restriction
-// @route   GET /ap1/v1/company/:companyId/activity/user/:userId/date/:date
+// @route   GET /ap1/v1/company/:companyId/activity/user
 // @access  Privare
 exports.getUserActivities = asyncHandler(async (req, res, next) => {
   let company = await Company.findById(req.params.companyId);
@@ -528,6 +528,7 @@ exports.getUserActivityByDate = asyncHandler(async (req, res, next) => {
   })
     .populate({
       path: "activity",
+      select: "id location address fullDate date type",
     })
     .select("-company");
 
