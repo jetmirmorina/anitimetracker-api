@@ -23,6 +23,10 @@ const TimeSheetActivitySchema = new mongoose.mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: "TimeSheet",
     },
+    jobName: {
+      type: String,
+      default: "",
+    },
   },
   {
     toJSON: { virtuals: true },

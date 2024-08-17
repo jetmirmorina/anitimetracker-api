@@ -312,6 +312,118 @@ exports.startBreak = asyncHandler(async (req, res, next) => {
   res.status(201).json({ success: true, data: formatMongoData(timeSheet) });
 });
 
+// @desc    Start Job
+// @route   POST /api/v1/company/:companyId/activity/startjob/:timesheetId
+// @access  Private
+exports.startJob = asyncHandler(async (req, res, next) => {
+  const companyId = req.params.companyId;
+  const timesheetId = req.params.timesheetId;
+
+  if (!companyId) {
+    return next(new ErrorResponse(`Please provide companyId`, 400));
+  }
+
+  if (!timesheetId) {
+    return next(new ErrorResponse(`Please provide timesheetId`, 400));
+  }
+
+  const { latitude, longitude, address, fullDate, date, jobName } = req.body;
+
+  let activity = new TimesheetActivity({
+    location: { latitude, longitude },
+    address,
+    fullDate,
+    date,
+    type: "startJob",
+    user: req.user.id,
+    timesheet: timesheetId,
+    jobName,
+  });
+
+  let timeSheet = await TimeSheet.findById(timesheetId);
+  if (!timeSheet) {
+    return next(
+      new ErrorResponse(`Timesheet with id: ${companyId} does not exist`, 404)
+    );
+  }
+
+  timeSheet.activity.push(activity._id);
+
+  await activity.save();
+  await timeSheet.save();
+
+  timeSheet = await TimeSheet.findByIdAndUpdate(
+    timesheetId,
+    { status: "job" },
+    { new: true }
+  );
+
+  res.status(201).json({ success: true, data: formatMongoData(timeSheet) });
+});
+
+// @desc    End Break
+// @route   POST /api/v1/company/:companyId/activity/endjob/:timesheetId
+// @access  Private
+exports.endJob = asyncHandler(async (req, res, next) => {
+  const companyId = req.params.companyId;
+  const timesheetId = req.params.timesheetId;
+
+  if (!companyId) {
+    return next(new ErrorResponse(`Please provide companyId`, 400));
+  }
+
+  if (!timesheetId) {
+    return next(new ErrorResponse(`Please provide timesheetId`, 400));
+  }
+
+  const { latitude, longitude, address, fullDate, date, jobName } = req.body;
+
+  let activity = new TimesheetActivity({
+    location: { latitude, longitude },
+    address,
+    fullDate,
+    date,
+    type: "endJob",
+    user: req.user.id,
+    timesheet: timesheetId,
+    jobName,
+  });
+
+  let timeSheet = await TimeSheet.findById(timesheetId);
+  if (!timeSheet) {
+    return next(
+      new ErrorResponse(`Timesheet with id: ${companyId} does not exist`, 404)
+    );
+  }
+
+  timeSheet.activity.push(activity._id);
+
+  await activity.save();
+  await timeSheet.save();
+
+  let totalDuration = "";
+
+  const totalTime = await calculateBreakDuration(
+    timesheetId,
+    date,
+    req.user.id
+  );
+
+  // Update the TimeSheet document
+  const updatedTimeSheet = await TimeSheet.findByIdAndUpdate(
+    timesheetId,
+    {
+      onBreakTime: totalTime,
+      status: "clockin",
+    },
+    { new: true } // This option returns the updated document
+  );
+
+  res
+    .status(201)
+    .json({ success: true, data: formatMongoData(updatedTimeSheet) });
+});
+
 // @desc    Post Timesheet Note
 // @route   POST  /ap1/v1/timesheet/:id/note
 // @access  Private
