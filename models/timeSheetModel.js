@@ -78,12 +78,10 @@ TimeSheetSchema.pre("findOneAndUpdate", async function (next) {
       case "clockout":
         user.activityStatus = "offline";
         break;
-      case "startBreak":
+      case "onBreak":
         user.activityStatus = "onBreak";
         break;
-      case "endBreak":
-        user.activityStatus = "clockin";
-        break;
+
       default:
         console.log(`Unknown status: ${status}`);
     }
