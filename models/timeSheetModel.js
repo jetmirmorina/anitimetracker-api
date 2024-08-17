@@ -53,4 +53,45 @@ const TimeSheetSchema = new mongoose.Schema(
   }
 );
 
+TimeSheetSchema.pre("save", async function (next) {
+  if (this.isModified("status")) {
+    const user = await mongoose.model("User").findById(this.user);
+    user.activityStatus = this.status;
+    await user.save();
+  }
+
+  next();
+});
+
+TimeSheetSchema.pre("findOneAndUpdate", async function (next) {
+  const update = this.getUpdate();
+  const status = update.status;
+
+  if (status) {
+    const docToUpdate = await this.model.findOne(this.getQuery());
+    const user = await mongoose.model("User").findById(docToUpdate.user);
+
+    switch (status) {
+      case "clockin":
+        user.activityStatus = "clockin";
+        break;
+      case "clockout":
+        user.activityStatus = "offline";
+        break;
+      case "onbreak":
+        user.activityStatus = "onBreak";
+        break;
+      case "endbreak":
+        user.activityStatus = "clockin";
+        break;
+      default:
+        console.log(`Unknown status: ${status}`);
+    }
+
+    await user.save();
+  }
+
+  next();
+});
+
 module.exports = mongoose.model("TimeSheet", TimeSheetSchema);

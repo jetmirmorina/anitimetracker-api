@@ -137,21 +137,16 @@ exports.clockout = asyncHandler(async (req, res, next) => {
   });
   // Update the TimeSheet document
 
-  // const updatedTimeSheet = await TimeSheet.findByIdAndUpdate(
-  //   timesheetId,
-  //   {
-  //     clockinTime: totalTime,
-  //     status: "clockout",
-  //     endLocation: { latitude, longitude },
-  //     endTime: fullDate,
-  //   },
-  //   { new: true } // This option returns the updated document
-  // );
-
-  timeSheet.clockinTime = totalTime;
-  timeSheet.status = "clockout";
-  timeSheet.endLocation = { latitude, longitude };
-  timeSheet.endTime = fullDate;
+  const updatedTimeSheet = await TimeSheet.findByIdAndUpdate(
+    timesheetId,
+    {
+      clockinTime: totalTime,
+      status: "clockout",
+      endLocation: { latitude, longitude },
+      endTime: fullDate,
+    },
+    { new: true } // This option returns the updated document
+  );
 
   await timeSheet.save();
 
