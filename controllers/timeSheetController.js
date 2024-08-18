@@ -637,7 +637,8 @@ exports.getUserActivityByDate = asyncHandler(async (req, res, next) => {
       path: "activity",
       select: "id location address fullDate date type",
     })
-    .select("-company");
+    .select("-company")
+    .sort({ fullDate: -1 });
 
   const formattedData = formatMongoData(timesheets);
 
