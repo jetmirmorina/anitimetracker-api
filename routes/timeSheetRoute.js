@@ -15,6 +15,7 @@ const {
   startJob,
   endJob,
   deleteTimesheet,
+  deleteTimesheetActivity,
 } = require("../controllers/timeSheetController");
 const TimeSheet = require("../models/timeSheetModel");
 const TimesheetActivity = require("../models/timeSheetActivityModel");

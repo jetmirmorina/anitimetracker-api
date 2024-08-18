@@ -646,7 +646,7 @@ exports.getUserActivityByDate = asyncHandler(async (req, res, next) => {
 });
 
 // @desc    Delete Timesheet By Id
-// @route   DELETE /api/v1/activity/:id
+// @route   DELETE /api/v1/timesheet/:id
 // @access  Private
 exports.deleteTimesheet = asyncHandler(async (req, res, next) => {
   const timesheet = await TimeSheet.findByIdAndDelete(req.params.id);

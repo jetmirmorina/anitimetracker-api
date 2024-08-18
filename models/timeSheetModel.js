@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const TimesheetActivity = require("./timeSheetActivityModel");
 
 const TimeSheetSchema = new mongoose.Schema(
   {
@@ -87,6 +88,18 @@ TimeSheetSchema.pre("findOneAndUpdate", async function (next) {
     }
 
     await user.save();
+  }
+
+  next();
+});
+
+TimeSheetSchema.pre("findOneAndDelete", async function (next) {
+  const timesheet = await this.model
+    .findOne(this.getFilter())
+    .populate("activity");
+
+  if (timesheet && timesheet.activity.length > 0) {
+    await TimesheetActivity.deleteMany({ _id: { $in: timesheet.activity } });
   }
 
   next();
