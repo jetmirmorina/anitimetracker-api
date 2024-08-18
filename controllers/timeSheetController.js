@@ -643,3 +643,17 @@ exports.getUserActivityByDate = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({ success: true, data: formattedData });
 });
+
+// @desc    Delete Timesheet By Id
+// @route   DELETE /api/v1/activity/:id
+// @access  Private
+exports.deleteTimesheet = asyncHandler(async (req, res, next) => {
+  const timesheet = await TimeSheet.findByIdAndDelete(req.params.id);
+  if (!timesheet) {
+    return next(
+      new ErrorResponse(`No timesheet found with id: ${req.params.id}`, 404)
+    );
+  }
+
+  res.status(200).json({ success: true, json: formatMongoData(timesheet) });
+});

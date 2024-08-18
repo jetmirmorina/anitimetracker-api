@@ -14,6 +14,7 @@ const {
   getUserActivityByDate,
   startJob,
   endJob,
+  deleteTimesheet,
 } = require("../controllers/timeSheetController");
 const TimeSheet = require("../models/timeSheetModel");
 const TimesheetActivity = require("../models/timeSheetActivityModel");
@@ -25,7 +26,7 @@ const router = express.Router({ mergeParams: true });
 router.use(protect);
 
 router.route("/").post(activity).get(advancedResults(TimeSheet), getActivities);
-router.route("/:id").get(getActivity);
+router.route("/:id").get(getActivity).delete(deleteTimesheet);
 router.route("/date/:date").get(getActivitieByDate);
 router.route("/clockin").post(clockin);
 router.route("/clockout/:timesheetId").post(clockout);
