@@ -131,10 +131,10 @@ exports.clockout = asyncHandler(async (req, res, next) => {
     req.user.id
   );
 
-  await User.findByIdAndUpdate(req.user.id, {
-    activityLocation: undefined,
-    activityAdress: undefined,
-  });
+  // await User.findByIdAndUpdate(req.user.id, {
+  //   activityLocation: undefined,
+  //   activityAdress: undefined,
+  // });
   // Update the TimeSheet document
 
   const updatedTimeSheet = await TimeSheet.findByIdAndUpdate(

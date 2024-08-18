@@ -42,4 +42,14 @@ const TimeSheetActivitySchema = new mongoose.mongoose.Schema(
   }
 );
 
+TimeSheetActivitySchema.pre("findByIdAndDelete", async function (next) {
+  if (this.isModified("status")) {
+    const user = await mongoose.model("User").findById(this.user);
+    user.activityStatus = this.status;
+    await user.save();
+  }
+
+  next();
+});
+
 module.exports = mongoose.model("TimeSheetActivity", TimeSheetActivitySchema);
