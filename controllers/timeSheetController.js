@@ -656,5 +656,5 @@ exports.deleteTimesheet = asyncHandler(async (req, res, next) => {
     );
   }
 
-  res.status(200).json({ success: true, json: formatMongoData(timesheet) });
+  res.status(200).json({ success: true });
 });
