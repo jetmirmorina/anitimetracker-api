@@ -73,6 +73,7 @@ exports.clockin = asyncHandler(async (req, res, next) => {
     startLocation: { latitude, longitude },
     startTime: fullDate,
     accuracy,
+    lastLocationUpdate: Date(),
   });
 
   await timesheet.save();
@@ -146,6 +147,8 @@ exports.clockout = asyncHandler(async (req, res, next) => {
       endLocation: { latitude, longitude },
       endTime: fullDate,
       accuracy,
+      location: { latitude, longitude },
+      lastLocationUpdate: Date(),
     },
     { new: true } // This option returns the updated document
   );
@@ -197,7 +200,12 @@ exports.startBreak = asyncHandler(async (req, res, next) => {
 
   timeSheet = await TimeSheet.findByIdAndUpdate(
     timesheetId,
-    { status: "onBreak", accuracy },
+    {
+      status: "onBreak",
+      accuracy,
+      location: { latitude, longitude },
+      lastLocationUpdate: Date(),
+    },
     { new: true } // This option returns the updated document
   );
 
@@ -258,6 +266,8 @@ exports.endBreak = asyncHandler(async (req, res, next) => {
       onBreakTime: totalTime,
       status: "clockin",
       accuracy,
+      location: { latitude, longitude },
+      lastLocationUpdate: Date(),
     },
     { new: true } // This option returns the updated document
   );
@@ -308,7 +318,12 @@ exports.startBreak = asyncHandler(async (req, res, next) => {
 
   timeSheet = await TimeSheet.findByIdAndUpdate(
     timesheetId,
-    { status: "onBreak", accuracy },
+    {
+      status: "onBreak",
+      accuracy,
+      location: { latitude, longitude },
+      lastLocationUpdate: Date(),
+    },
     { new: true } // This option returns the updated document
   );
 
@@ -358,7 +373,12 @@ exports.startJob = asyncHandler(async (req, res, next) => {
 
   timeSheet = await TimeSheet.findByIdAndUpdate(
     timesheetId,
-    { status: "job", accuracy },
+    {
+      status: "job",
+      accuracy,
+      location: { latitude, longitude },
+      lastLocationUpdate: Date(),
+    },
     { new: true }
   );
 
@@ -421,6 +441,8 @@ exports.endJob = asyncHandler(async (req, res, next) => {
       onBreakTime: totalTime,
       status: "clockin",
       accuracy,
+      location: { latitude, longitude },
+      lastLocationUpdate: Date(),
     },
     { new: true } // This option returns the updated document
   );
