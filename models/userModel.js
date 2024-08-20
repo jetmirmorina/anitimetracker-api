@@ -57,7 +57,7 @@ const UserSchema = new mongoose.Schema(
       },
     ],
     activityStatus: { type: String, default: "offline", select: false },
-    activityLocation: {
+    location: {
       latitude: { type: Number, select: false },
       longitude: { type: Number, select: false },
     },
