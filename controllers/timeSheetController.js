@@ -19,7 +19,7 @@ const {
 // @access  Private
 exports.clockin = asyncHandler(async (req, res, next) => {
   const companyId = req.params.companyId;
-  const { latitude, longitude, address, fullDate, date } = req.body;
+  const { latitude, longitude, address, fullDate, date, accuracy } = req.body;
 
   if (!companyId) {
     return next(
@@ -72,6 +72,7 @@ exports.clockin = asyncHandler(async (req, res, next) => {
     status: "clockin",
     startLocation: { latitude, longitude },
     startTime: fullDate,
+    accuracy,
   });
 
   await timesheet.save();
@@ -99,7 +100,7 @@ exports.clockout = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`Please provide timesheetId`, 400));
   }
 
-  const { latitude, longitude, address, fullDate, date } = req.body;
+  const { latitude, longitude, address, fullDate, date, accuracy } = req.body;
 
   let activity = new TimesheetActivity({
     location: { latitude, longitude },
@@ -144,6 +145,7 @@ exports.clockout = asyncHandler(async (req, res, next) => {
       status: "clockout",
       endLocation: { latitude, longitude },
       endTime: fullDate,
+      accuracy,
     },
     { new: true } // This option returns the updated document
   );
@@ -195,7 +197,7 @@ exports.startBreak = asyncHandler(async (req, res, next) => {
 
   timeSheet = await TimeSheet.findByIdAndUpdate(
     timesheetId,
-    { status: "onBreak" },
+    { status: "onBreak", accuracy },
     { new: true } // This option returns the updated document
   );
 
@@ -217,7 +219,7 @@ exports.endBreak = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`Please provide timesheetId`, 400));
   }
 
-  const { latitude, longitude, address, fullDate, date } = req.body;
+  const { latitude, longitude, address, fullDate, date, accuracy } = req.body;
 
   let activity = new TimesheetActivity({
     location: { latitude, longitude },
@@ -255,6 +257,7 @@ exports.endBreak = asyncHandler(async (req, res, next) => {
     {
       onBreakTime: totalTime,
       status: "clockin",
+      accuracy,
     },
     { new: true } // This option returns the updated document
   );
@@ -279,7 +282,7 @@ exports.startBreak = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`Please provide timesheetId`, 400));
   }
 
-  const { latitude, longitude, address, fullDate, date } = req.body;
+  const { latitude, longitude, address, fullDate, date, accuracy } = req.body;
 
   let activity = new TimesheetActivity({
     location: { latitude, longitude },
@@ -305,7 +308,7 @@ exports.startBreak = asyncHandler(async (req, res, next) => {
 
   timeSheet = await TimeSheet.findByIdAndUpdate(
     timesheetId,
-    { status: "onBreak" },
+    { status: "onBreak", accuracy },
     { new: true } // This option returns the updated document
   );
 
@@ -327,7 +330,8 @@ exports.startJob = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`Please provide timesheetId`, 400));
   }
 
-  const { latitude, longitude, address, fullDate, date, jobName } = req.body;
+  const { latitude, longitude, address, fullDate, date, jobName, accuracy } =
+    req.body;
 
   let activity = new TimesheetActivity({
     location: { latitude, longitude },
@@ -354,7 +358,7 @@ exports.startJob = asyncHandler(async (req, res, next) => {
 
   timeSheet = await TimeSheet.findByIdAndUpdate(
     timesheetId,
-    { status: "job" },
+    { status: "job", accuracy },
     { new: true }
   );
 
@@ -376,7 +380,8 @@ exports.endJob = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`Please provide timesheetId`, 400));
   }
 
-  const { latitude, longitude, address, fullDate, date, jobName } = req.body;
+  const { latitude, longitude, address, fullDate, date, jobName, accuracy } =
+    req.body;
 
   let activity = new TimesheetActivity({
     location: { latitude, longitude },
@@ -415,6 +420,7 @@ exports.endJob = asyncHandler(async (req, res, next) => {
     {
       onBreakTime: totalTime,
       status: "clockin",
+      accuracy,
     },
     { new: true } // This option returns the updated document
   );
@@ -616,7 +622,7 @@ exports.getUserActivities = asyncHandler(async (req, res, next) => {
   }
 
   const users = await User.find({ companies: req.params.companyId }).select(
-    "+activityStatus +activityAdress +activityLocation.latitude +activityLocation.longitude -companies"
+    "+activityStatus +activityAdress +location.latitude +location.longitude -companies"
   );
   const sortedUsers = users.sort((a, b) => {
     const order = ["clockin", "onbreak", "offline"];

@@ -30,6 +30,7 @@ const TimeSheetSchema = new mongoose.Schema(
     },
     clockinTime: { type: String, default: "" },
     onBreakTime: { type: String, default: "" },
+    accuracy: { type: String, default: "" },
     fullDate: Date,
     date: String,
     note: {
