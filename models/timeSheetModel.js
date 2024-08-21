@@ -31,7 +31,6 @@ const TimeSheetSchema = new mongoose.Schema(
     clockinTime: { type: String, default: "" },
     onBreakTime: { type: String, default: "" },
     accuracy: { type: String, default: "" },
-    lastLocationUpdate: { type: Date },
     fullDate: Date,
     date: String,
     note: {
@@ -77,12 +76,18 @@ TimeSheetSchema.pre("findOneAndUpdate", async function (next) {
     switch (status) {
       case "clockin":
         user.activityStatus = "clockin";
+        user.location = this.startLocation;
+        user.lastLocationUpdate = Date();
         break;
       case "clockout":
         user.activityStatus = "offline";
+        user.location = this.endLocation;
+        user.lastLocationUpdate = Date();
+
         break;
       case "onBreak":
         user.activityStatus = "onBreak";
+
         break;
 
       default:

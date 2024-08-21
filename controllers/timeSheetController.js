@@ -73,7 +73,6 @@ exports.clockin = asyncHandler(async (req, res, next) => {
     startLocation: { latitude, longitude },
     startTime: fullDate,
     accuracy,
-    lastLocationUpdate: Date(),
   });
 
   await timesheet.save();
@@ -147,8 +146,6 @@ exports.clockout = asyncHandler(async (req, res, next) => {
       endLocation: { latitude, longitude },
       endTime: fullDate,
       accuracy,
-      location: { latitude, longitude },
-      lastLocationUpdate: Date(),
     },
     { new: true } // This option returns the updated document
   );
@@ -203,8 +200,6 @@ exports.startBreak = asyncHandler(async (req, res, next) => {
     {
       status: "onBreak",
       accuracy,
-      location: { latitude, longitude },
-      lastLocationUpdate: Date(),
     },
     { new: true } // This option returns the updated document
   );
@@ -266,8 +261,6 @@ exports.endBreak = asyncHandler(async (req, res, next) => {
       onBreakTime: totalTime,
       status: "clockin",
       accuracy,
-      location: { latitude, longitude },
-      lastLocationUpdate: Date(),
     },
     { new: true } // This option returns the updated document
   );
@@ -321,8 +314,6 @@ exports.startBreak = asyncHandler(async (req, res, next) => {
     {
       status: "onBreak",
       accuracy,
-      location: { latitude, longitude },
-      lastLocationUpdate: Date(),
     },
     { new: true } // This option returns the updated document
   );
@@ -376,8 +367,6 @@ exports.startJob = asyncHandler(async (req, res, next) => {
     {
       status: "job",
       accuracy,
-      location: { latitude, longitude },
-      lastLocationUpdate: Date(),
     },
     { new: true }
   );
@@ -441,8 +430,6 @@ exports.endJob = asyncHandler(async (req, res, next) => {
       onBreakTime: totalTime,
       status: "clockin",
       accuracy,
-      location: { latitude, longitude },
-      lastLocationUpdate: Date(),
     },
     { new: true } // This option returns the updated document
   );
@@ -663,7 +650,7 @@ exports.getUserActivityByDate = asyncHandler(async (req, res, next) => {
   })
     .populate({
       path: "activity",
-      select: "id location address fullDate date type",
+      select: "id location address fullDate date type jobName",
     })
     .select("-company")
     .sort({ fullDate: -1 });

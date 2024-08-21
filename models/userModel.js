@@ -61,6 +61,8 @@ const UserSchema = new mongoose.Schema(
       latitude: { type: Number, select: false },
       longitude: { type: Number, select: false },
     },
+    lastLocationUpdate: { type: Date },
+
     activityAdress: { type: String, default: "", select: false },
   },
   {
