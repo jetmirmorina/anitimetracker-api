@@ -68,7 +68,7 @@ exports.clockin = asyncHandler(async (req, res, next) => {
     date,
     activity: [activity._id],
     company: companyId,
-    clockinFullDate: fullDate,
+    fullDate: fullDate,
     status: "clockin",
     startLocation: { latitude, longitude },
     startTime: fullDate,
@@ -147,6 +147,7 @@ exports.clockout = asyncHandler(async (req, res, next) => {
       status: "clockout",
       endLocation: { latitude, longitude },
       endTime: fullDate,
+      fullDate,
       accuracy,
     },
     { new: true } // This option returns the updated document
@@ -664,7 +665,7 @@ exports.getUserActivityByDate = asyncHandler(async (req, res, next) => {
   })
     .populate({
       path: "activity",
-      select: "id location address fullDate date type jobName",
+      select: "id location address fullDate date type jobName timeEntry",
     })
     .select("-company")
     .sort({ fullDate: -1 });
