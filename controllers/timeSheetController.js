@@ -625,7 +625,7 @@ exports.getUserTmesheets = asyncHandler(async (req, res, next) => {
     date: req.params.date,
   }).populate({
     path: "activity",
-    select: "type address fullDate date endBreak location",
+    select: "type address fullDate date endBreak location lastLocationUpdate",
   });
 
   res.status(200).json({ success: true, data: formatMongoData(timeShees) });
