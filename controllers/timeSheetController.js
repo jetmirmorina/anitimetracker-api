@@ -68,7 +68,7 @@ exports.clockin = asyncHandler(async (req, res, next) => {
     date,
     activity: [activity._id],
     company: companyId,
-    fullDate: fullDate,
+    clockinFullDate: fullDate,
     status: "clockin",
     startLocation: { latitude, longitude },
     startTime: fullDate,
@@ -129,13 +129,11 @@ exports.clockout = asyncHandler(async (req, res, next) => {
   await activity.save();
   await timeSheet.save();
 
-  let totalDuration = "";
-
-  const totalTime = await calculateUserClockinDuration(
-    timesheetId,
-    date,
-    req.user.id
-  );
+  // const totalTime = await calculateUserClockinDuration(
+  //   timesheetId,
+  //   date,
+  //   req.user.id
+  // );
 
   // await User.findByIdAndUpdate(req.user.id, {
   //   activityLocation: undefined,
@@ -146,7 +144,6 @@ exports.clockout = asyncHandler(async (req, res, next) => {
   const updatedTimeSheet = await TimeSheet.findByIdAndUpdate(
     timesheetId,
     {
-      clockinTime: totalTime,
       status: "clockout",
       endLocation: { latitude, longitude },
       endTime: fullDate,
@@ -261,19 +258,10 @@ exports.endBreak = asyncHandler(async (req, res, next) => {
   await activity.save();
   await timeSheet.save();
 
-  let totalDuration = "";
-
-  const totalTime = await calculateBreakDuration(
-    timesheetId,
-    date,
-    req.user.id
-  );
-
   // Update the TimeSheet document
   const updatedTimeSheet = await TimeSheet.findByIdAndUpdate(
     timesheetId,
     {
-      onBreakTime: totalTime,
       status: "clockin",
       accuracy,
     },
@@ -445,19 +433,10 @@ exports.endJob = asyncHandler(async (req, res, next) => {
   await activity.save();
   await timeSheet.save();
 
-  let totalDuration = "";
-
-  const totalTime = await calculateBreakDuration(
-    timesheetId,
-    date,
-    req.user.id
-  );
-
   // Update the TimeSheet document
   const updatedTimeSheet = await TimeSheet.findByIdAndUpdate(
     timesheetId,
     {
-      onBreakTime: totalTime,
       status: "clockin",
       accuracy,
     },
@@ -601,7 +580,7 @@ exports.getActivitieByDate = asyncHandler(async (req, res, next) => {
       company: companyId,
       date: req.params.date,
     })
-      .select("onBreakTime clockinTime endLocation fullDate date staus")
+      .select("endLocation fullDate date staus")
 
       .populate({ path: "user", select: "name photo" });
 

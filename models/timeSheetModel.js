@@ -28,8 +28,6 @@ const TimeSheetSchema = new mongoose.Schema(
       latitude: Number,
       longitude: Number,
     },
-    clockinTime: { type: String, default: "" },
-    onBreakTime: { type: String, default: "" },
     accuracy: { type: String, default: "" },
     fullDate: Date,
     date: String,
@@ -76,5 +74,29 @@ TimeSheetSchema.statics.saveUserActivityInfo = async function (
   user.lastLocationUpdate = Date();
   await user.save();
 };
+
+TimeSheetSchema.virtual("timeEntry").get(function () {
+  const now = new Date();
+  const clockinDate = this.startTime;
+  const clockoutDate = this.endTime || now; // Use current date if no clockout
+
+  const timeDifference = clockoutDate - clockinDate; // Difference in milliseconds
+
+  const seconds = Math.floor(timeDifference / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+
+  let result = "";
+
+  if (hours > 0) {
+    result += `${hours}h`;
+  }
+  if (minutes > 0 || hours > 0) {
+    result += ` ${minutes % 60}m`;
+  } else {
+    result = `${seconds}s`; // If less than a minute, show seconds
+  }
+  return result.trim();
+});
 
 module.exports = mongoose.model("TimeSheet", TimeSheetSchema);
