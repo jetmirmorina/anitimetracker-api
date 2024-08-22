@@ -82,6 +82,11 @@ exports.clockin = asyncHandler(async (req, res, next) => {
     { new: true, runValidators: true }
   );
 
+  await TimeSheet.saveUserActivityInfo(req.user.id, "clockin", {
+    latitude,
+    longitude,
+  });
+
   res.status(201).json({ success: true, data: formatMongoData(timesheet) });
 });
 
@@ -152,6 +157,11 @@ exports.clockout = asyncHandler(async (req, res, next) => {
 
   await timeSheet.save();
 
+  await TimeSheet.saveUserActivityInfo(req.user.id, "clockout", {
+    latitude,
+    longitude,
+  });
+
   res
     .status(201)
     .json({ success: true, data: formatMongoData(updatedTimeSheet) });
@@ -203,6 +213,11 @@ exports.startBreak = asyncHandler(async (req, res, next) => {
     },
     { new: true } // This option returns the updated document
   );
+
+  await TimeSheet.saveUserActivityInfo(req.user.id, "onBreak", {
+    latitude,
+    longitude,
+  });
 
   res.status(201).json({ success: true, data: formatMongoData(timeSheet) });
 });
@@ -264,6 +279,11 @@ exports.endBreak = asyncHandler(async (req, res, next) => {
     },
     { new: true } // This option returns the updated document
   );
+
+  await TimeSheet.saveUserActivityInfo(req.user.id, "clockin", {
+    latitude,
+    longitude,
+  });
 
   res
     .status(201)

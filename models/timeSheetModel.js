@@ -65,51 +65,16 @@ TimeSheetSchema.pre("save", async function (next) {
   next();
 });
 
-TimeSheetSchema.pre("findOneAndUpdate", async function (next) {
-  const update = this.getUpdate();
-  const status = update.status;
-
-  if (status) {
-    const docToUpdate = await this.model.findOne(this.getQuery());
-    const user = await mongoose.model("User").findById(docToUpdate.user);
-
-    switch (status) {
-      case "clockin":
-        user.activityStatus = "clockin";
-        user.location = this.startLocation;
-        user.lastLocationUpdate = Date();
-        break;
-      case "clockout":
-        user.activityStatus = "offline";
-        user.location = this.endLocation;
-        user.lastLocationUpdate = Date();
-
-        break;
-      case "onBreak":
-        user.activityStatus = "onBreak";
-
-        break;
-
-      default:
-        console.log(`Unknown status: ${status}`);
-    }
-
-    await user.save();
-  }
-
-  next();
-});
-
-TimeSheetSchema.pre("findOneAndDelete", async function (next) {
-  const timesheet = await this.model
-    .findOne(this.getFilter())
-    .populate("activity");
-
-  if (timesheet && timesheet.activity.length > 0) {
-    await TimesheetActivity.deleteMany({ _id: { $in: timesheet.activity } });
-  }
-
-  next();
-});
+TimeSheetSchema.statics.saveUserActivityInfo = async function (
+  userId,
+  status,
+  location
+) {
+  const user = await mongoose.model("User").findById(userId);
+  user.activityStatus = status;
+  user.location = location;
+  user.lastLocationUpdate = Date();
+  await user.save();
+};
 
 module.exports = mongoose.model("TimeSheet", TimeSheetSchema);
