@@ -75,12 +75,23 @@ TimeSheetSchema.statics.saveUserActivityInfo = async function (
   await user.save();
 };
 
-TimeSheetSchema.virtual("timeEntry").get(function () {
-  const now = new Date();
-  const clockinDate = this.startTime;
-  const clockoutDate = this.endTime || now; // Use current date if no clockout
+const correctTimezone = (date) => {
+  // Adjust for the time difference
+  const timeOffsetInHours = 2; // Adjust this based on your need
+  return new Date(date.getTime() + timeOffsetInHours * 60 * 60 * 1000);
+};
 
-  const timeDifference = clockoutDate - clockinDate; // Difference in milliseconds
+// In your virtual
+TimeSheetSchema.virtual("timeEntry").get(function () {
+  const now = correctTimezone(new Date()); // Adjusted current date
+  const clockinDate = this.startTime;
+  const clockoutDate = this.endTime ? correctTimezone(this.endTime) : now;
+
+  const timeDifference = clockoutDate - clockinDate;
+
+  if (timeDifference < 0) {
+    return "Invalid time entry";
+  }
 
   const seconds = Math.floor(timeDifference / 1000);
   const minutes = Math.floor(seconds / 60);
@@ -94,8 +105,9 @@ TimeSheetSchema.virtual("timeEntry").get(function () {
   if (minutes > 0 || hours > 0) {
     result += ` ${minutes % 60}m`;
   } else {
-    result = `${seconds}s`; // If less than a minute, show seconds
+    result = `${seconds}s`;
   }
+
   return result.trim();
 });
 
