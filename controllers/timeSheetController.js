@@ -48,7 +48,7 @@ exports.clockin = asyncHandler(async (req, res, next) => {
   }
 
   if (company.clockInRestrictions && !insideRadius) {
-    res
+    return res
       .status(400)
       .json({ success: false, error: "You are not near yout job location" });
   }
