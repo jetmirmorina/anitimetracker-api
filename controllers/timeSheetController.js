@@ -649,7 +649,7 @@ exports.getUserActivities = asyncHandler(async (req, res, next) => {
     "+activityStatus +activityAdress +location.latitude +location.longitude -companies"
   );
   const sortedUsers = users.sort((a, b) => {
-    const order = ["clockin", "onbreak", "offline"];
+    const order = ["clockin", "onBreak", "clockout"];
     return order.indexOf(a.activityStatus) - order.indexOf(b.activityStatus);
   });
   res.status(200).json({ success: true, data: formatMongoData(sortedUsers) });
