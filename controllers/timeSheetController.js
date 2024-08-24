@@ -7,6 +7,7 @@ const JobSite = require("../models/jobSiteModel");
 const haversineDistance = require("../utils/distance");
 const User = require("../models/userModel");
 const { formatMongoData } = require("../utils/dbHelper");
+const mongoose = require("mongoose");
 
 const {
   calculateUserClockinDuration,
@@ -659,9 +660,55 @@ exports.getUserActivities = asyncHandler(async (req, res, next) => {
 // @route   GET /api/v1/activity/user/:userid/date/:date
 // @access  Private
 exports.getUserActivityByDate = asyncHandler(async (req, res, next) => {
+  // const timesheets = await TimeSheet.find({
+  //   user: req.params.userid,
+  //   date: req.params.date,
+  // })
+  //   .populate({
+  //     path: "activity",
+  //     select: "id location address fullDate date type jobName timeEntry",
+  //   })
+  //   .select("-company")
+  //   .sort({ fullDate: -1 });
+
+  // const formattedData = formatMongoData(timesheets);
+
+  // res.status(200).json({ success: true, data: formattedData });
+
+  // Get the start and end of the current day
+
+  // Parse the currentDate parameter
+
+  const current = new Date(req.params.date);
+
+  // Adjust for local timezone by creating a new Date object
+  const startOfDay = new Date(current);
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const endOfDay = new Date(current);
+  endOfDay.setHours(23, 59, 59, 999);
+
+  // Adjust the start of the previous day
+  const startOfPreviousDay = new Date(startOfDay);
+  startOfPreviousDay.setDate(startOfDay.getDate() - 1);
+
+  // Convert these dates to UTC to match against UTC-stored data
+  const startOfDayUTC = new Date(startOfDay.toISOString());
+  const endOfDayUTC = new Date(endOfDay.toISOString());
+  const startOfPreviousDayUTC = new Date(startOfPreviousDay.toISOString());
+
+  // Log the converted UTC dates for debugging
+  console.log("startOfDayUTC:", startOfDayUTC);
+  console.log("endOfDayUTC:", endOfDayUTC);
+  console.log("startOfPreviousDayUTC:", startOfPreviousDayUTC);
+
+  // Query for timesheets
   const timesheets = await TimeSheet.find({
     user: req.params.userid,
-    date: req.params.date,
+    $or: [
+      { startTime: { $gte: startOfDayUTC, $lte: endOfDayUTC } },
+      { startTime: { $gte: startOfPreviousDayUTC, $lt: startOfDayUTC } },
+    ],
   })
     .populate({
       path: "activity",
@@ -670,8 +717,19 @@ exports.getUserActivityByDate = asyncHandler(async (req, res, next) => {
     .select("-company")
     .sort({ fullDate: -1 });
 
-  const formattedData = formatMongoData(timesheets);
+  await Promise.all(
+    timesheets.map(async (timesheet) => {
+      if (
+        timesheet.startTime >= startOfPreviousDayUTC &&
+        timesheet.startTime < startOfDayUTC
+      ) {
+        timesheet.clockinFromPreviousDay = true;
+        await timesheet.save();
+      }
+    })
+  );
 
+  const formattedData = formatMongoData(timesheets);
   res.status(200).json({ success: true, data: formattedData });
 });
 

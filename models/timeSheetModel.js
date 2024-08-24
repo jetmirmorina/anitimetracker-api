@@ -38,6 +38,7 @@ const TimeSheetSchema = new mongoose.Schema(
     },
     startTime: { type: Date, default: "" },
     endTime: { type: Date, default: "" },
+    clockinFromPreviousDay: { type: Boolean, default: false },
   },
   {
     toJSON: { virtuals: true },
@@ -83,9 +84,25 @@ const correctTimezone = (date) => {
 
 // In your virtual
 TimeSheetSchema.virtual("timeEntry").get(function () {
-  const now = correctTimezone(new Date()); // Adjusted current date
   const clockinDate = this.startTime;
-  const clockoutDate = this.endTime ? correctTimezone(this.endTime) : now;
+  let clockoutDate;
+
+  if (
+    this.clockinFromPreviousDay &&
+    this.activity &&
+    this.activity.length > 0
+  ) {
+    // Get the first activity's fullDate if clockinFromPreviousDay is true
+    clockoutDate = correctTimezone(this.activity[0].fullDate);
+    console.log(
+      `this.activity[0].fullDate: ${this.activity[0].fullDate}`.bgRed
+    );
+  } else {
+    // Otherwise, use the adjusted current date
+    clockoutDate = this.endTime
+      ? correctTimezone(this.endTime)
+      : correctTimezone(new Date());
+  }
 
   const timeDifference = clockoutDate - clockinDate;
 
