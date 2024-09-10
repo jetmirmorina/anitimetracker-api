@@ -86,7 +86,7 @@ const correctTimezone = (date) => {
 TimeSheetSchema.virtual("timeEntry").get(function () {
   const clockinDate = this.startTime;
   let clockoutDate;
-  let timeDifference;
+
   if (
     this.clockinFromPreviousDay &&
     this.activity &&
@@ -97,16 +97,20 @@ TimeSheetSchema.virtual("timeEntry").get(function () {
     console.log(
       `this.activity[0].fullDate: ${correctTimezone(new Date())}`.bgRed
     );
-    timeDifference = correctTimezone(new Date()) - clockoutDate;
+
+    console.log(
+      `this.activity[0].startTime: ${correctTimezone(this.startTime)}`.bgYellow
+    );
   } else {
     // Otherwise, use the adjusted current date
     clockoutDate = this.endTime
       ? correctTimezone(this.endTime)
       : correctTimezone(new Date());
-    timeDifference = clockoutDate - clockinDate;
   }
 
   //
+
+  const timeDifference = clockoutDate - clockinDate;
 
   if (timeDifference < 0) {
     return "Invalid time entry";

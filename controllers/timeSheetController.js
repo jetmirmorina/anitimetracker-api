@@ -701,6 +701,7 @@ exports.getUserActivityByDate = asyncHandler(async (req, res, next) => {
   console.log("startOfDayUTC:", startOfDayUTC);
   console.log("endOfDayUTC:", endOfDayUTC);
   console.log("startOfPreviousDayUTC:", startOfPreviousDayUTC);
+  console.log("Date():", Date());
 
   // Query for timesheets
   const timesheets = await TimeSheet.find({
