@@ -1,5 +1,7 @@
 const express = require("express");
-
+const rateLimit = require('express-rate-limit');
+const router = express.Router();
+const { protect } = require("../middleware/auth");
 const {
   registerUser,
   login,
@@ -12,23 +14,43 @@ const {
   logout,
   checkEmail,
 } = require("../controllers/authController");
-const Company = require("../models/companyModel");
-const User = require("../models/userModel");
+const { 
+  validateLogin, 
+  validateRegistration,
+  validateUpdateDetails,
+  validateUpdatePassword 
+} = require('../middleware/validateRequest');
 
-const advancedResults = require("../middleware/advancedResults");
+// Rate limiters
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: 'Too many login attempts, please try again after 15 minutes',
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
 
-const router = express.Router();
-const { protect } = require("../middleware/auth");
+const forgotPasswordLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 3,
+  message: 'Too many password reset attempts, please try again after an hour',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
+// Public routes
 router.post("/checkemail", checkEmail);
-router.post("/register", registerUser);
+router.post("/register", validateRegistration, registerUser);
+router.post("/login", validateLogin, loginLimiter, login);
 router.get("/confirmemail", confirmEmail);
-router.post("/login", login);
-router.post("/logout", protect, logout);
-router.get("/me", protect, getMe);
-router.post("/forgotpassword", forgotPassword);
+router.post("/forgotpassword", forgotPasswordLimiter, forgotPassword);
 router.put("/resetpassword/:resettoken", resetPassword);
-router.put("/updatedetails", protect, updateDetails);
-router.put("/updatepassword", protect, updatePassword);
+
+// Protected routes
+router.use(protect);
+router.get("/me", getMe);
+router.post("/logout", logout);
+router.put("/updatedetails", validateUpdateDetails, updateDetails);
+router.put("/updatepassword", validateUpdatePassword, updatePassword);
 
 module.exports = router;

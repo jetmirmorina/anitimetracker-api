@@ -2,31 +2,36 @@ const jwt = require("jsonwebtoken");
 const asyncHandler = require("./async");
 const ErrorResponse = require("../utils/errorResponse");
 const User = require("../models/userModel");
+const Company = require("../models/companyModel");
 
 exports.protect = asyncHandler(async (req, res, next) => {
   let token;
 
-  console.log(`req.headers.authorization: ${req.headers.authorization}`);
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer")
-  ) {
-    token = req.headers.authorization.split(" ")[1];
-    console.log(`token: ${token}`.bold.green);
-    // Make sure token exists
-    if (!token) {
-      return next(new ErrorResponse(`Not authorize to access route`, 401));
+  if (req.headers.authorization?.startsWith("Bearer")) {
+    const authHeader = req.headers.authorization;
+    token = authHeader.split(" ")[1];
+  }
+
+  if (!token) {
+    return next(new ErrorResponse("Please authenticate to access this route", 401));
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
+
+    if (!user) {
+      return next(new ErrorResponse("User no longer exists", 401));
     }
 
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      req.user = await User.findById(decoded.id);
-      next();
-    } catch {
-      return next(new ErrorResponse(`Not authorize to access route`, 401));
+    if (user.passwordChangedAt && decoded.iat < user.passwordChangedAt.getTime() / 1000) {
+      return next(new ErrorResponse("Password recently changed. Please log in again", 401));
     }
-  } else {
-    return next(new ErrorResponse("Not authorized to access this route", 401));
+
+    req.user = user;
+    next();
+  } catch (err) {
+    return next(new ErrorResponse("Invalid authentication token", 401));
   }
 });
 
@@ -44,3 +49,29 @@ exports.authorize = (...roles) => {
     next();
   };
 };
+
+// Add company authorization middleware
+exports.authorizeCompany = asyncHandler(async (req, res, next) => {
+  const company = await Company.findById(req.params.companyId);
+  
+  if (!company) {
+    return next(new ErrorResponse(`Company not found with id ${req.params.companyId}`, 404));
+  }
+
+  // Allow admins to access any company
+  if (req.user.role === 'admin') {
+    return next();
+  }
+
+  // Check if user belongs to the company
+  const userCompanies = req.user.companies || [];
+  if (!userCompanies.includes(company._id)) {
+    return next(
+      new ErrorResponse(`Not authorized to access this company's resources`, 403)
+    );
+  }
+
+  // Add company to request object for later use
+  req.company = company;
+  next();
+});

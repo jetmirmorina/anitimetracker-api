@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const defaultTransform = require("../utils/modelTransform");
 
 const TimeSheetActivitySchema = new mongoose.mongoose.Schema(
   {
@@ -30,15 +31,7 @@ const TimeSheetActivitySchema = new mongoose.mongoose.Schema(
   },
   {
     toJSON: { virtuals: true },
-    toObject: {
-      virtuals: true,
-      transform: function (doc, ret, options) {
-        ret.id = ret._id;
-        delete ret._id;
-        delete ret.__v;
-        return ret;
-      },
-    },
+    toObject: { virtuals: true, transform: defaultTransform }
   }
 );
 

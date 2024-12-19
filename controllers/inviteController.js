@@ -42,7 +42,7 @@ exports.inviteUser = asyncHandler(async (req, res, next) => {
     //   message,
     // });
 
-    console.log(`User Invitation lin -> ${inviteURL}`.bgYellow);
+    console.log(`User Invitation link -> ${inviteURL}`.bgYellow);
   });
 
   res.status(200).json({
